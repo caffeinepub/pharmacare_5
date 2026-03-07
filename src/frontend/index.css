@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   FONTS — self-hosted woff2
+   ============================================================ */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque[opsz,wdth,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sora";
+  src: url("/assets/fonts/Sora[wght].woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   DESIGN TOKENS — OKLCH
+   PharmaCare: deep forest-teal, warm amber accent, clean white
+   ============================================================ */
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* Surfaces */
+    --background: 0.975 0.005 160;
+    --foreground: 0.15 0.025 160;
+    --card: 1 0 0;
+    --card-foreground: 0.15 0.025 160;
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0.025 160;
+
+    /* Brand: Forest Teal */
+    --primary: 0.32 0.07 168;
+    --primary-foreground: 0.98 0 0;
+
+    /* Secondary: Muted Sage */
+    --secondary: 0.92 0.02 168;
+    --secondary-foreground: 0.28 0.055 168;
+
+    /* Muted */
+    --muted: 0.95 0.01 168;
+    --muted-foreground: 0.52 0.02 168;
+
+    /* Accent: Warm Amber */
+    --accent: 0.88 0.08 85;
+    --accent-foreground: 0.22 0.06 80;
+
+    /* Status */
+    --destructive: 0.58 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+    --success: 0.55 0.18 142;
+    --success-foreground: 0.98 0 0;
+    --warning: 0.72 0.18 68;
+    --warning-foreground: 0.2 0.04 60;
+
+    /* Structural */
+    --border: 0.88 0.015 168;
+    --input: 0.88 0.015 168;
+    --ring: 0.32 0.07 168;
+
+    /* Charts */
+    --chart-1: 0.55 0.18 168;
+    --chart-2: 0.68 0.15 85;
+    --chart-3: 0.58 0.22 25;
+    --chart-4: 0.55 0.18 142;
+    --chart-5: 0.72 0.18 280;
+
+    /* Sidebar */
+    --sidebar: 0.22 0.04 168;
+    --sidebar-foreground: 0.92 0.01 168;
+    --sidebar-primary: 0.72 0.14 168;
+    --sidebar-primary-foreground: 0.15 0.025 160;
+    --sidebar-accent: 0.28 0.055 168;
+    --sidebar-accent-foreground: 0.92 0.01 168;
+    --sidebar-border: 0.3 0.05 168;
+    --sidebar-ring: 0.72 0.14 168;
+  }
+
+  .dark {
+    --background: 0.13 0.025 168;
+    --foreground: 0.94 0.01 168;
+    --card: 0.18 0.035 168;
+    --card-foreground: 0.94 0.01 168;
+    --popover: 0.2 0.04 168;
+    --popover-foreground: 0.94 0.01 168;
+
+    --primary: 0.72 0.14 168;
+    --primary-foreground: 0.12 0.02 168;
+
+    --secondary: 0.25 0.04 168;
+    --secondary-foreground: 0.92 0.01 168;
+
+    --muted: 0.22 0.035 168;
+    --muted-foreground: 0.62 0.02 168;
+
+    --accent: 0.78 0.1 85;
+    --accent-foreground: 0.18 0.04 80;
+
+    --destructive: 0.65 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+    --success: 0.62 0.18 142;
+    --success-foreground: 0.98 0 0;
+    --warning: 0.78 0.18 68;
+    --warning-foreground: 0.15 0.04 60;
+
+    --border: 0.28 0.04 168;
+    --input: 0.28 0.04 168;
+    --ring: 0.72 0.14 168;
+
+    --chart-1: 0.72 0.14 168;
+    --chart-2: 0.78 0.15 85;
+    --chart-3: 0.65 0.22 25;
+    --chart-4: 0.62 0.18 142;
+    --chart-5: 0.72 0.18 280;
+
+    --sidebar: 0.16 0.03 168;
+    --sidebar-foreground: 0.92 0.01 168;
+    --sidebar-primary: 0.72 0.14 168;
+    --sidebar-primary-foreground: 0.12 0.02 168;
+    --sidebar-accent: 0.22 0.04 168;
+    --sidebar-accent-foreground: 0.92 0.01 168;
+    --sidebar-border: 0.22 0.04 168;
+    --sidebar-ring: 0.72 0.14 168;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+@layer utilities {
+  .text-success {
+    color: oklch(var(--success));
+  }
+  .bg-success {
+    background-color: oklch(var(--success));
+  }
+  .text-success-foreground {
+    color: oklch(var(--success-foreground));
+  }
+  .text-warning {
+    color: oklch(var(--warning));
+  }
+  .bg-warning {
+    background-color: oklch(var(--warning));
+  }
+  .text-warning-foreground {
+    color: oklch(var(--warning-foreground));
+  }
+  .bg-warning\/20 {
+    background-color: oklch(var(--warning) / 0.2);
+  }
+  .bg-destructive\/10 {
+    background-color: oklch(var(--destructive) / 0.1);
+  }
+  .bg-success\/10 {
+    background-color: oklch(var(--success) / 0.1);
+  }
+  .bg-warning\/10 {
+    background-color: oklch(var(--warning) / 0.1);
+  }
+  .border-success {
+    border-color: oklch(var(--success));
+  }
+  .border-warning {
+    border-color: oklch(var(--warning));
+  }
+}

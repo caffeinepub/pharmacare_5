@@ -75,13 +75,14 @@
 
     /* Sidebar */
     --sidebar: 0.22 0.04 168;
-    --sidebar-foreground: 0.92 0.01 168;
+    --sidebar-foreground: 0.95 0.005 168;
     --sidebar-primary: 0.72 0.14 168;
     --sidebar-primary-foreground: 0.15 0.025 160;
     --sidebar-accent: 0.28 0.055 168;
-    --sidebar-accent-foreground: 0.92 0.01 168;
+    --sidebar-accent-foreground: 0.95 0.005 168;
     --sidebar-border: 0.3 0.05 168;
     --sidebar-ring: 0.72 0.14 168;
+    --sidebar-foreground-muted: 0.70 0.015 168;
   }
 
   .dark {

@@ -129,7 +129,10 @@ export default function AppLayout({
             <h2 className="font-display font-bold text-sidebar-foreground text-lg leading-none">
               PharmaCare
             </h2>
-            <p className="text-xs text-sidebar-foreground/50 mt-0.5">
+            <p
+              className="text-xs mt-0.5"
+              style={{ color: "oklch(var(--sidebar-foreground-muted))" }}
+            >
               Management System
             </p>
           </div>
@@ -157,8 +160,13 @@ export default function AppLayout({
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${
                 isActive
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               }`}
+              style={
+                !isActive
+                  ? { color: "oklch(var(--sidebar-foreground-muted))" }
+                  : undefined
+              }
               data-ocid={item.ocid}
               aria-current={isActive ? "page" : undefined}
             >
@@ -201,7 +209,8 @@ export default function AppLayout({
           <Button
             variant="ghost"
             size="icon"
-            className="w-7 h-7 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            className="w-7 h-7 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            style={{ color: "oklch(var(--sidebar-foreground-muted))" }}
             onClick={clear}
             title="Log out"
             data-ocid="nav.logout.button"

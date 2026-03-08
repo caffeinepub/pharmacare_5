@@ -91,124 +91,47 @@ const emptyForm = (): MedicineFormData => ({
   isActive: true,
 });
 
-export default function Inventory() {
-  const { data: medicinesData, isLoading } = useMedicines();
-  const { data: categoriesData } = useCategories();
-  const addMed = useAddMedicine();
-  const updateMed = useUpdateMedicine();
-  const deleteMed = useDeleteMedicine();
+// Defined outside Inventory to prevent remounting on every render
+interface MedicineModalProps {
+  open: boolean;
+  onClose: () => void;
+  isEdit: boolean;
+  form: MedicineFormData;
+  setForm: React.Dispatch<React.SetStateAction<MedicineFormData>>;
+  onSubmit: () => void;
+  isPending: boolean;
+  categories: { name: string; description: string }[];
+}
 
-  const [search, setSearch] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editMed, setEditMed] = useState<Medicine | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [form, setForm] = useState<MedicineFormData>(emptyForm());
-
-  const medicines =
-    medicinesData && medicinesData.length > 0 ? medicinesData : sampleMedicines;
-  const categories =
-    categoriesData && categoriesData.length > 0
-      ? categoriesData
-      : sampleCategories;
-
-  const filtered = medicines.filter(
-    (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.genericName.toLowerCase().includes(search.toLowerCase()) ||
-      m.category.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const openAdd = () => {
-    setForm(emptyForm());
-    setShowAddModal(true);
-  };
-  const openEdit = (med: Medicine) => {
-    setEditMed(med);
-    setForm({
-      name: med.name,
-      genericName: med.genericName,
-      category: med.category,
-      manufacturer: med.manufacturer,
-      batchNumber: med.batchNumber,
-      expiryDate: nsToDateInput(med.expiryDate),
-      quantity: String(Number(med.quantity)),
-      unitPrice: String(med.unitPrice),
-      reorderLevel: String(Number(med.reorderLevel)),
-      isActive: med.isActive,
-    });
-  };
-
-  const handleSubmit = async () => {
-    if (
-      !form.name ||
-      !form.genericName ||
-      !form.category ||
-      !form.expiryDate ||
-      !form.quantity
-    ) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    const payload = {
-      name: form.name,
-      genericName: form.genericName,
-      category: form.category,
-      manufacturer: form.manufacturer,
-      batchNumber: form.batchNumber,
-      expiryDate: dateInputToNs(form.expiryDate),
-      quantity: BigInt(Math.round(Number(form.quantity))),
-      unitPrice: Number(form.unitPrice),
-      reorderLevel: BigInt(Math.round(Number(form.reorderLevel))),
-    };
-    try {
-      if (editMed) {
-        await updateMed.mutateAsync({
-          id: editMed.id,
-          ...payload,
-          isActive: form.isActive,
-        });
-        toast.success("Medicine updated successfully");
-        setEditMed(null);
-      } else {
-        await addMed.mutateAsync(payload);
-        toast.success("Medicine added successfully");
-        setShowAddModal(false);
-      }
-    } catch {
-      toast.error("Failed to save medicine. Please try again.");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    try {
-      await deleteMed.mutateAsync(deletingId);
-      toast.success("Medicine deleted");
-      setDeletingId(null);
-    } catch {
-      toast.error("Failed to delete medicine");
-    }
-  };
-
-  const isPending = addMed.isPending || updateMed.isPending;
-
-  const MedicineModal = ({
-    open,
-    onClose,
-  }: { open: boolean; onClose: () => void }) => (
-    <Dialog open={open} onOpenChange={onClose}>
+function MedicineModal({
+  open,
+  onClose,
+  isEdit,
+  form,
+  setForm,
+  onSubmit,
+  isPending,
+  categories,
+}: MedicineModalProps) {
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose();
+      }}
+    >
       <DialogContent
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
         data-ocid={
-          editMed ? "medicine.edit_modal.dialog" : "medicine.add_modal.dialog"
+          isEdit ? "medicine.edit_modal.dialog" : "medicine.add_modal.dialog"
         }
       >
         <DialogHeader>
           <DialogTitle className="font-display">
-            {editMed ? "Edit Medicine" : "Add New Medicine"}
+            {isEdit ? "Edit Medicine" : "Add New Medicine"}
           </DialogTitle>
           <DialogDescription>
-            {editMed
+            {isEdit
               ? "Update the medicine details below."
               : "Fill in the details to add a new medicine to inventory."}
           </DialogDescription>
@@ -326,7 +249,7 @@ export default function Inventory() {
               data-ocid="medicine.reorder.input"
             />
           </div>
-          {editMed && (
+          {isEdit && (
             <div className="space-y-1.5 flex items-center gap-3 pt-5">
               <Switch
                 checked={form.isActive}
@@ -347,7 +270,7 @@ export default function Inventory() {
             Cancel
           </Button>
           <Button
-            onClick={handleSubmit}
+            onClick={onSubmit}
             disabled={isPending}
             data-ocid="medicine.modal.submit_button"
           >
@@ -356,7 +279,7 @@ export default function Inventory() {
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saving…
               </>
-            ) : editMed ? (
+            ) : isEdit ? (
               "Update Medicine"
             ) : (
               "Add Medicine"
@@ -366,6 +289,134 @@ export default function Inventory() {
       </DialogContent>
     </Dialog>
   );
+}
+
+export default function Inventory() {
+  const { data: medicinesData, isLoading } = useMedicines();
+  const { data: categoriesData } = useCategories();
+  const addMed = useAddMedicine();
+  const updateMed = useUpdateMedicine();
+  const deleteMed = useDeleteMedicine();
+
+  const [search, setSearch] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editMed, setEditMed] = useState<Medicine | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [form, setForm] = useState<MedicineFormData>(emptyForm());
+
+  const medicines =
+    medicinesData && medicinesData.length > 0 ? medicinesData : sampleMedicines;
+  const categories =
+    categoriesData && categoriesData.length > 0
+      ? categoriesData
+      : sampleCategories;
+
+  const filtered = medicines.filter(
+    (m) =>
+      m.name.toLowerCase().includes(search.toLowerCase()) ||
+      m.genericName.toLowerCase().includes(search.toLowerCase()) ||
+      m.category.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const openAdd = () => {
+    setForm(emptyForm());
+    setShowAddModal(true);
+  };
+  const openEdit = (med: Medicine) => {
+    setEditMed(med);
+    setForm({
+      name: med.name,
+      genericName: med.genericName,
+      category: med.category,
+      manufacturer: med.manufacturer,
+      batchNumber: med.batchNumber,
+      expiryDate: nsToDateInput(med.expiryDate),
+      quantity: String(Number(med.quantity)),
+      unitPrice: String(med.unitPrice),
+      reorderLevel: String(Number(med.reorderLevel)),
+      isActive: med.isActive,
+    });
+  };
+
+  const handleAddSubmit = async () => {
+    if (
+      !form.name ||
+      !form.genericName ||
+      !form.category ||
+      !form.expiryDate ||
+      !form.quantity
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    const payload = {
+      name: form.name,
+      genericName: form.genericName,
+      category: form.category,
+      manufacturer: form.manufacturer,
+      batchNumber: form.batchNumber,
+      expiryDate: dateInputToNs(form.expiryDate),
+      quantity: BigInt(Math.round(Number(form.quantity))),
+      unitPrice: Number(form.unitPrice),
+      reorderLevel: BigInt(Math.round(Number(form.reorderLevel))),
+    };
+    try {
+      await addMed.mutateAsync(payload);
+      toast.success("Medicine added successfully");
+      setShowAddModal(false);
+      setForm(emptyForm());
+    } catch {
+      toast.error("Failed to save medicine. Please try again.");
+    }
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editMed) return;
+    if (
+      !form.name ||
+      !form.genericName ||
+      !form.category ||
+      !form.expiryDate ||
+      !form.quantity
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    const payload = {
+      name: form.name,
+      genericName: form.genericName,
+      category: form.category,
+      manufacturer: form.manufacturer,
+      batchNumber: form.batchNumber,
+      expiryDate: dateInputToNs(form.expiryDate),
+      quantity: BigInt(Math.round(Number(form.quantity))),
+      unitPrice: Number(form.unitPrice),
+      reorderLevel: BigInt(Math.round(Number(form.reorderLevel))),
+    };
+    try {
+      await updateMed.mutateAsync({
+        id: editMed.id,
+        ...payload,
+        isActive: form.isActive,
+      });
+      toast.success("Medicine updated successfully");
+      setEditMed(null);
+      setForm(emptyForm());
+    } catch {
+      toast.error("Failed to save medicine. Please try again.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    try {
+      await deleteMed.mutateAsync(deletingId);
+      toast.success("Medicine deleted");
+      setDeletingId(null);
+    } catch {
+      toast.error("Failed to delete medicine");
+    }
+  };
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -560,13 +611,34 @@ export default function Inventory() {
         </Table>
       </div>
 
-      {/* Add Modal */}
+      {/* Add Medicine Modal */}
       <MedicineModal
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setForm(emptyForm());
+        }}
+        isEdit={false}
+        form={form}
+        setForm={setForm}
+        onSubmit={handleAddSubmit}
+        isPending={addMed.isPending}
+        categories={categories}
       />
-      {/* Edit Modal */}
-      <MedicineModal open={!!editMed} onClose={() => setEditMed(null)} />
+      {/* Edit Medicine Modal */}
+      <MedicineModal
+        open={!!editMed}
+        onClose={() => {
+          setEditMed(null);
+          setForm(emptyForm());
+        }}
+        isEdit={true}
+        form={form}
+        setForm={setForm}
+        onSubmit={handleEditSubmit}
+        isPending={updateMed.isPending}
+        categories={categories}
+      />
 
       {/* Delete Confirm */}
       <AlertDialog

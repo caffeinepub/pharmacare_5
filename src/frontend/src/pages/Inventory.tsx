@@ -48,6 +48,7 @@ import {
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAddMedicine,
   useCategories,
@@ -297,6 +298,7 @@ export default function Inventory() {
   const addMed = useAddMedicine();
   const updateMed = useUpdateMedicine();
   const deleteMed = useDeleteMedicine();
+  const { identity } = useInternetIdentity();
 
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -338,7 +340,13 @@ export default function Inventory() {
     });
   };
 
+  const isLoggedIn = !!identity && !identity.getPrincipal().isAnonymous();
+
   const handleAddSubmit = async () => {
+    if (!isLoggedIn) {
+      toast.error("Please log in first to add medicines.");
+      return;
+    }
     if (
       !form.name ||
       !form.genericName ||
@@ -365,13 +373,27 @@ export default function Inventory() {
       toast.success("Medicine added successfully");
       setShowAddModal(false);
       setForm(emptyForm());
-    } catch {
-      toast.error("Failed to save medicine. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.toLowerCase().includes("unauthorized") ||
+        msg.toLowerCase().includes("admin")
+      ) {
+        toast.error(
+          "Only admins can add medicines. Please log in with an admin account.",
+        );
+      } else {
+        toast.error("Failed to save medicine. Please try again.");
+      }
     }
   };
 
   const handleEditSubmit = async () => {
     if (!editMed) return;
+    if (!isLoggedIn) {
+      toast.error("Please log in first to edit medicines.");
+      return;
+    }
     if (
       !form.name ||
       !form.genericName ||
@@ -402,19 +424,44 @@ export default function Inventory() {
       toast.success("Medicine updated successfully");
       setEditMed(null);
       setForm(emptyForm());
-    } catch {
-      toast.error("Failed to save medicine. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.toLowerCase().includes("unauthorized") ||
+        msg.toLowerCase().includes("admin")
+      ) {
+        toast.error(
+          "Only admins can edit medicines. Please log in with an admin account.",
+        );
+      } else {
+        toast.error("Failed to save medicine. Please try again.");
+      }
     }
   };
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    if (!isLoggedIn) {
+      toast.error("Please log in first to delete medicines.");
+      setDeletingId(null);
+      return;
+    }
     try {
       await deleteMed.mutateAsync(deletingId);
       toast.success("Medicine deleted");
       setDeletingId(null);
-    } catch {
-      toast.error("Failed to delete medicine");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.toLowerCase().includes("unauthorized") ||
+        msg.toLowerCase().includes("admin")
+      ) {
+        toast.error(
+          "Only admins can delete medicines. Please log in with an admin account.",
+        );
+      } else {
+        toast.error("Failed to delete medicine");
+      }
     }
   };
 

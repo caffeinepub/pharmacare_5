@@ -10,9 +10,11 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   Package,
   Pill,
   ShoppingCart,
+  Sun,
   Tag,
   Truck,
   X,
@@ -21,6 +23,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import type { Page } from "../App";
 import { UserRole } from "../backend.d";
+import { useDarkMode } from "../hooks/useDarkMode";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useUserProfile, useUserRole } from "../hooks/useQueries";
 
@@ -99,6 +102,7 @@ export default function AppLayout({
   const { clear } = useInternetIdentity();
   const { data: profile } = useUserProfile();
   const { data: role } = useUserRole();
+  const { isDark, toggle: toggleDark } = useDarkMode();
 
   const roleLabel = role === UserRole.admin ? "Admin" : "Pharmacist";
   const roleColor =
@@ -211,6 +215,21 @@ export default function AppLayout({
             size="icon"
             className="w-7 h-7 hover:text-sidebar-foreground hover:bg-sidebar-accent"
             style={{ color: "oklch(var(--sidebar-foreground-muted))" }}
+            onClick={toggleDark}
+            title="Toggle dark mode"
+            data-ocid="nav.darkmode.toggle"
+          >
+            {isDark ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-7 h-7 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            style={{ color: "oklch(var(--sidebar-foreground-muted))" }}
             onClick={clear}
             title="Log out"
             data-ocid="nav.logout.button"
@@ -280,6 +299,20 @@ export default function AppLayout({
               PharmaCare
             </span>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto text-muted-foreground"
+            onClick={toggleDark}
+            title="Toggle dark mode"
+            data-ocid="nav.darkmode.toggle"
+          >
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+          </Button>
         </header>
 
         {/* Page content */}

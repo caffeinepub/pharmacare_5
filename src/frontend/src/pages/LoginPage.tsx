@@ -9,7 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FlaskConical, Loader2, LogIn, ShieldCheck, User } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  FlaskConical,
+  Loader2,
+  LogIn,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -36,6 +44,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
   const [selectedRole, setSelectedRole] = useState<"pharmacist" | "admin">(
     "pharmacist",
   );
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // If identity exists and role is guest, move to profile step
   const showProfileStep =
@@ -45,7 +56,7 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
-      toast.error("Please enter your name");
+      toast.error("Please enter a username");
       return;
     }
     try {
@@ -133,22 +144,60 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
                     Welcome Back
                   </CardTitle>
                   <CardDescription>
-                    Connect your identity to access the pharmacy management
-                    system.
+                    Sign in to access the pharmacy management system.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="bg-secondary rounded-lg p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm font-medium text-secondary-foreground">
-                      <ShieldCheck className="w-4 h-4" />
-                      Secure & Decentralized
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Your data is stored on the Internet Computer blockchain.
-                      No passwords required.
-                    </p>
+                  {/* Username field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="login-username">Username</Label>
+                    <Input
+                      id="login-username"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && login()}
+                      autoComplete="username"
+                      data-ocid="login.username.input"
+                    />
                   </div>
 
+                  {/* Password field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && login()}
+                        autoComplete="current-password"
+                        className="pr-10"
+                        data-ocid="login.password.input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        tabIndex={-1}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        data-ocid="login.password_toggle.button"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Login button */}
                   <Button
                     onClick={login}
                     disabled={isLoggingIn || isInitializing}
@@ -158,15 +207,26 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
                     {isLoggingIn ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Connecting…
+                        Signing in…
                       </>
                     ) : (
                       <>
                         <LogIn className="w-4 h-4 mr-2" />
-                        Connect with Internet Identity
+                        Login
                       </>
                     )}
                   </Button>
+
+                  {/* Secure badge */}
+                  <div className="bg-secondary rounded-lg p-3 space-y-1">
+                    <div className="flex items-center gap-2 text-sm font-medium text-secondary-foreground">
+                      <ShieldCheck className="w-4 h-4" />
+                      Secure &amp; Decentralized
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Your data is stored on the Internet Computer blockchain.
+                    </p>
+                  </div>
 
                   <div className="flex items-center gap-3 my-2">
                     <div className="flex-1 h-px bg-border" />
@@ -219,10 +279,10 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Your Name</Label>
+                    <Label htmlFor="name">Username</Label>
                     <Input
                       id="name"
-                      placeholder="e.g. Dr. Anjali Mehta"
+                      placeholder="Choose a username"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       onKeyDown={(e) =>
